@@ -27,7 +27,7 @@ import (
 //	output:
 //	   suite: github.com/DataDog/dd-sdk-go-testing
 //	   name: TestRun.func1
-func GetPackageAndName(pc uintptr, ignoredPrefix string) (suite string, name string) {
+func GetPackageAndName(pc uintptr, ignoredPrefix string) (suite, truncSuite, name string) {
 	funcFullName := runtime.FuncForPC(pc).Name()
 	lastSlash := strings.LastIndexByte(funcFullName, '/')
 	if lastSlash < 0 {
@@ -38,5 +38,5 @@ func GetPackageAndName(pc uintptr, ignoredPrefix string) (suite string, name str
 	funcName := funcFullName[firstDot+1:]
 
 	replacedPackName := strings.Replace(packName, ignoredPrefix, "", -1)
-	return replacedPackName, funcName
+	return packName, replacedPackName, funcName
 }

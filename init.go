@@ -105,14 +105,14 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) context.Co
 	}
 
 	pc, _, _, _ := runtime.Caller(cfg.skip)
-	suite, _ := utils.GetPackageAndName(pc, cfg.ignoredTestSuitePrefix)
+	fullSuite, truncSuite, _ := utils.GetPackageAndName(pc, cfg.ignoredTestSuitePrefix)
 	name := tb.Name()
-	fqn := fmt.Sprintf("%s.%s", suite, name)
+	fqn := fmt.Sprintf("%s.%s", fullSuite, name)
 
 	testOpts := []tracer.StartSpanOption{
 		tracer.ResourceName(fqn),
 		tracer.Tag(constants.TestName, name),
-		tracer.Tag(constants.TestSuite, suite),
+		tracer.Tag(constants.TestSuite, truncSuite),
 		tracer.Tag(constants.TestFramework, testFramework),
 		tracer.Tag(constants.Origin, constants.CIAppTestOrigin),
 	}
