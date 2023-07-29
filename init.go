@@ -72,24 +72,32 @@ func Run(m *testing.M, opts ...tracer.StartOption) int {
 
 // TB is the minimal interface common to T and B.
 type TB interface {
+	Cleanup(f func())
 	Failed() bool
+	Helper()
 	Name() string
 	Skipped() bool
 }
 
-var _ TB = (*testing.T)(nil)
-var _ TB = (*testing.B)(nil)
+var (
+	_ TB = (*testing.T)(nil)
+	_ TB = (*testing.B)(nil)
+)
 
 // StartTest returns a new span with the given testing.TB interface and options. It uses
 // tracer.StartSpanFromContext function to start the span with automatically detected information.
-func StartTest(tb TB, opts ...Option) (context.Context, FinishFunc) {
+func StartTest(tb TB, opts ...Option) context.Context {
+	tb.Helper()
+
 	opts = append(opts, WithIncrementSkipFrame())
 	return StartTestWithContext(context.Background(), tb, opts...)
 }
 
 // StartTestWithContext returns a new span with the given testing.TB interface and options. It uses
 // tracer.StartSpanFromContext function to start the span with automatically detected information.
-func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.Context, FinishFunc) {
+func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) context.Context {
+	tb.Helper()
+
 	cfg := new(config)
 	defaults(cfg)
 	for _, fn := range opts {
@@ -119,7 +127,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 	cfg.spanOpts = append(testOpts, cfg.spanOpts...)
 	span, ctx := tracer.StartSpanFromContext(ctx, constants.SpanTypeTest, cfg.spanOpts...)
 
-	return ctx, func() {
+	cleanup := func() {
 		var r interface{} = nil
 
 		if r = recover(); r != nil {
@@ -150,6 +158,9 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 			panic(r)
 		}
 	}
+
+	tb.Cleanup(cleanup)
+	return ctx
 }
 
 func getStacktrace(skip int) string {
@@ -163,7 +174,6 @@ func getStacktrace(skip int) string {
 		} else {
 			break
 		}
-
 	}
 	return buffer.String()
 }
