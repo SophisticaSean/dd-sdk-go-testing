@@ -23,9 +23,10 @@ var (
 )
 
 type config struct {
-	skip       int
-	spanOpts   []ddtrace.StartSpanOption
-	finishOpts []ddtrace.FinishOption
+	skip                   int
+	spanOpts               []ddtrace.StartSpanOption
+	finishOpts             []ddtrace.FinishOption
+	ignoredTestSuitePrefix string
 }
 
 // Option represents an option that can be passed to NewServeMux or WrapHandler.
@@ -139,5 +140,21 @@ func WithSkipFrames(skip int) Option {
 func WithIncrementSkipFrame() Option {
 	return func(cfg *config) {
 		cfg.skip = cfg.skip + 1
+	}
+}
+
+// WithIgnoreTestSuitePrefix allows you to cleanup test suite output
+// example:
+// without this option
+//
+//	github.com/DataDog/dd-sdk-go-testing/internal/some-package
+//
+// with this option of "github.com/Datadog/dd-sdk-go-testing"
+//
+//	input: github.com/DataDog/dd-sdk-go-testing/internal/some-package
+//	output: internal/some-package
+func WithIgnoreTestSuitePrefix(prefix string) Option {
+	return func(cfg *config) {
+		cfg.ignoredTestSuitePrefix = prefix
 	}
 }

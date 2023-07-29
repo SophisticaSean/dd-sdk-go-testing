@@ -105,7 +105,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) context.Co
 	}
 
 	pc, _, _, _ := runtime.Caller(cfg.skip)
-	suite, _ := utils.GetPackageAndName(pc)
+	suite, _ := utils.GetPackageAndName(pc, cfg.ignoredTestSuitePrefix)
 	name := tb.Name()
 	fqn := fmt.Sprintf("%s.%s", suite, name)
 
