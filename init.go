@@ -86,7 +86,7 @@ var (
 
 // StartTest returns a new span with the given testing.TB interface and options. It uses
 // tracer.StartSpanFromContext function to start the span with automatically detected information.
-func StartTest(tb TB, opts ...Option) context.Context {
+func StartTest(tb TB, opts ...Option) (context.Context, FinishFunc) {
 	tb.Helper()
 
 	opts = append(opts, WithIncrementSkipFrame())
@@ -95,7 +95,7 @@ func StartTest(tb TB, opts ...Option) context.Context {
 
 // StartTestWithContext returns a new span with the given testing.TB interface and options. It uses
 // tracer.StartSpanFromContext function to start the span with automatically detected information.
-func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) context.Context {
+func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.Context, FinishFunc) {
 	tb.Helper()
 
 	cfg := new(config)
@@ -159,8 +159,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) context.Co
 		}
 	}
 
-	tb.Cleanup(cleanup)
-	return ctx
+	return ctx, cleanup
 }
 
 func getStacktrace(skip int) string {

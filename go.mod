@@ -1,6 +1,6 @@
 module github.com/DataDog/dd-sdk-go-testing
 
-go 1.14
+go 1.12
 
 require (
 	github.com/Microsoft/go-winio v0.5.1 // indirect
