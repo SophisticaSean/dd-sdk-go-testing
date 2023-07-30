@@ -30,7 +30,7 @@ const (
 
 var (
 	repoRegex    = regexp.MustCompile(`(?m)\/([a-zA-Z0-9\\\-_.]*)$`)
-	failNowRegex = regexp.MustCompile(`^testing\.\(\*common\)\.FailNow`)
+	failNowRegex = regexp.MustCompile(`testing\.\(\*common\)\.FailNow`)
 )
 
 // FinishFunc closes a started span and attaches test status information.
