@@ -31,6 +31,7 @@ const (
 var (
 	repoRegex    = regexp.MustCompile(`(?m)\/([a-zA-Z0-9\\\-_.]*)$`)
 	failNowRegex = regexp.MustCompile(`testing\.\(\*common\)\.FailNow`)
+	fatalRegex   = regexp.MustCompile(`testing\.\(\*common\)\.Fatal`) // should also catch Fatalf
 )
 
 // FinishFunc closes a started span and attaches test status information.
@@ -155,6 +156,10 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 				if isFailNow(stackTrace) {
 					span.SetTag(ext.ErrorStack, stackTrace)
 					span.SetTag(ext.ErrorType, "FailNow")
+
+					if isFatal(stackTrace) {
+						span.SetTag(ext.ErrorType, "Fatal")
+					}
 				}
 
 			} else if tb.Skipped() {
@@ -193,4 +198,8 @@ func getStacktrace(skip int) string {
 
 func isFailNow(stackTrace string) bool {
 	return failNowRegex.MatchString(stackTrace)
+}
+
+func isFatal(stackTrace string) bool {
+	return fatalRegex.MatchString(stackTrace)
 }
