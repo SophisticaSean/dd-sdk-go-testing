@@ -157,6 +157,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 					span.SetTag(ext.ErrorStack, stackTrace)
 					span.SetTag(ext.ErrorType, "FailNow")
 
+					// t.Fatal calls FailNow, so we look for it in the stack
 					if isFatal(stackTrace) {
 						span.SetTag(ext.ErrorType, "Fatal")
 					}
