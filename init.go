@@ -143,7 +143,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 
 			if tb.Failed() {
 				span.SetTag(constants.TestStatus, constants.TestStatusFail)
-				span.SetTag(ext.ErrorStack, getStacktrace(2))
+				span.SetTag(ext.ErrorStack, getStacktrace(1))
 			} else if tb.Skipped() {
 				span.SetTag(constants.TestStatus, constants.TestStatusSkip)
 			} else {
