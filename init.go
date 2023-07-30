@@ -28,7 +28,10 @@ const (
 	testFramework = "golang.org/pkg/testing"
 )
 
-var repoRegex = regexp.MustCompile(`(?m)\/([a-zA-Z0-9\\\-_.]*)$`)
+var (
+	repoRegex    = regexp.MustCompile(`(?m)\/([a-zA-Z0-9\\\-_.]*)$`)
+	failNowRegex = regexp.MustCompile(`^testing\.\(\*common\)\.FailNow`)
+)
 
 // FinishFunc closes a started span and attaches test status information.
 type FinishFunc func()
@@ -143,7 +146,17 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 
 			if tb.Failed() {
 				span.SetTag(constants.TestStatus, constants.TestStatusFail)
-				span.SetTag(ext.ErrorStack, getStacktrace(1))
+				stackTrace := getStacktrace(2)
+
+				// we can detect if t.FailNow was called from the stacktrace
+				// and we can get an accurate stacktrace for a t.FailNow
+				// t.Fail doesn't work for a stacktrace result
+				// because execution continues after t.Fail is called
+				if isFailNow(stackTrace) {
+					span.SetTag(ext.ErrorStack, stackTrace)
+					span.SetTag(ext.ErrorType, "FailNow")
+				}
+
 			} else if tb.Skipped() {
 				span.SetTag(constants.TestStatus, constants.TestStatusSkip)
 			} else {
@@ -176,4 +189,8 @@ func getStacktrace(skip int) string {
 		}
 	}
 	return buffer.String()
+}
+
+func isFailNow(stackTrace string) bool {
+	return failNowRegex.MatchString(stackTrace)
 }
