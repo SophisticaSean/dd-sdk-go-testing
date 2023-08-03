@@ -81,6 +81,7 @@ type TB interface {
 	Helper()
 	Name() string
 	Skipped() bool
+	FailureMsg() string
 }
 
 var (
