@@ -56,7 +56,9 @@ func Run(m *testing.M, opts ...tracer.StartOption) int {
 	// Initialize tracer
 	tracer.Start(opts...)
 	exitFunc := func() {
+		fmt.Println("flushing exitfunc")
 		tracer.Flush()
+		fmt.Println("flushing exitfunc done")
 		tracer.Stop()
 	}
 	defer exitFunc()
@@ -180,7 +182,10 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 		span.Finish(cfg.finishOpts...)
 
 		if r != nil {
+
+			fmt.Println("flushing")
 			tracer.Flush()
+			fmt.Println("flushing done")
 			tracer.Stop()
 			panic(r)
 		}
