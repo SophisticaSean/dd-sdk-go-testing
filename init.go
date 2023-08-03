@@ -135,6 +135,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 	cleanup := func() {
 		var r interface{} = nil
 
+		panic("hi")
 		if r = recover(); r != nil {
 			// Panic handling
 			span.SetTag(constants.TestStatus, constants.TestStatusFail)
@@ -149,7 +150,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 			if tb.Failed() {
 				span.SetTag(constants.TestStatus, constants.TestStatusFail)
 				stackTrace := getStacktrace(2)
-				panic(tb.FailureMsg())
+				fmt.Println(tb.FailureMsg())
 
 				// we can detect if t.FailNow was called from the stacktrace
 				// and we can get an accurate stacktrace for a t.FailNow
