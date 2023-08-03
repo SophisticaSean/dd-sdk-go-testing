@@ -132,6 +132,8 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 	cfg.spanOpts = append(testOpts, cfg.spanOpts...)
 	span, ctx := tracer.StartSpanFromContext(ctx, constants.SpanTypeTest, cfg.spanOpts...)
 
+	fmt.Println("hola top level from 1255")
+
 	cleanup := func() {
 		var r interface{} = nil
 
