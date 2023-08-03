@@ -148,6 +148,9 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 			if tb.Failed() {
 				span.SetTag(constants.TestStatus, constants.TestStatusFail)
 				stackTrace := getStacktrace(2)
+				fmt.Println("-------------------------------------------------------")
+				fmt.Println(tb.FailureMsg())
+				fmt.Println("-------------------------------------------------------")
 
 				// we can detect if t.FailNow was called from the stacktrace
 				// and we can get an accurate stacktrace for a t.FailNow
