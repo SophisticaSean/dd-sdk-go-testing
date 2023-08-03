@@ -101,7 +101,7 @@ func StartTest(tb TB, opts ...Option) (context.Context, FinishFunc) {
 // StartTestWithContext returns a new span with the given testing.TB interface and options. It uses
 // tracer.StartSpanFromContext function to start the span with automatically detected information.
 func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.Context, FinishFunc) {
-	tb.Helper()
+	// tb.Helper()
 
 	cfg := new(config)
 	defaults(cfg)
