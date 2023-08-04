@@ -56,9 +56,7 @@ func Run(m *testing.M, opts ...tracer.StartOption) int {
 	// Initialize tracer
 	tracer.Start(opts...)
 	exitFunc := func() {
-		fmt.Println("flushing exitfunc")
 		tracer.Flush()
-		fmt.Println("flushing exitfunc done")
 		tracer.Stop()
 	}
 	defer exitFunc()
@@ -83,7 +81,6 @@ type TB interface {
 	Helper()
 	Name() string
 	Skipped() bool
-	FailureMsg() string
 }
 
 var (
@@ -134,8 +131,6 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 	cfg.spanOpts = append(testOpts, cfg.spanOpts...)
 	span, ctx := tracer.StartSpanFromContext(ctx, constants.SpanTypeTest, cfg.spanOpts...)
 
-	fmt.Println("hola top level from 1255")
-
 	cleanup := func() {
 		var r interface{} = nil
 
@@ -153,10 +148,6 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 			if tb.Failed() {
 				span.SetTag(constants.TestStatus, constants.TestStatusFail)
 				stackTrace := getStacktrace(2)
-				fmt.Println("hola neighbor")
-				fmt.Println(tb.FailureMsg())
-				span.SetTag(ext.ErrorMsg, tb.FailureMsg())
-				fmt.Println("bye neighbor")
 
 				// we can detect if t.FailNow was called from the stacktrace
 				// and we can get an accurate stacktrace for a t.FailNow
@@ -182,10 +173,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 		span.Finish(cfg.finishOpts...)
 
 		if r != nil {
-
-			fmt.Println("flushing")
 			tracer.Flush()
-			fmt.Println("flushing done")
 			tracer.Stop()
 			panic(r)
 		}
