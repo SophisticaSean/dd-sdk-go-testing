@@ -70,6 +70,12 @@ func Run(m *testing.M, opts ...tracer.StartOption) int {
 		os.Exit(1)
 	}()
 
+	defer func() {
+		if r := recover(); r != nil {
+			exitFunc()
+		}
+	}()
+
 	// Execute test suite
 	return m.Run()
 }
@@ -132,7 +138,7 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 	span, ctx := tracer.StartSpanFromContext(ctx, constants.SpanTypeTest, cfg.spanOpts...)
 
 	cleanup := func() {
-		var r interface{} = nil
+		var r interface{}
 
 		if r = recover(); r != nil {
 			// Panic handling
