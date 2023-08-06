@@ -70,12 +70,6 @@ func Run(m *testing.M, opts ...tracer.StartOption) int {
 		os.Exit(1)
 	}()
 
-	defer func() {
-		if r := recover(); r != nil {
-			exitFunc()
-		}
-	}()
-
 	// Execute test suite
 	return m.Run()
 }
@@ -106,7 +100,7 @@ func StartTest(tb TB, opts ...Option) (context.Context, FinishFunc) {
 // StartTestWithContext returns a new span with the given testing.TB interface and options. It uses
 // tracer.StartSpanFromContext function to start the span with automatically detected information.
 func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.Context, FinishFunc) {
-	// tb.Helper()
+	tb.Helper()
 
 	cfg := new(config)
 	defaults(cfg)
@@ -179,11 +173,13 @@ func StartTestWithContext(ctx context.Context, tb TB, opts ...Option) (context.C
 		span.Finish(cfg.finishOpts...)
 
 		if r != nil {
-			// tracer.Flush()
-			// tracer.Stop()
+			tracer.Flush()
+			tracer.Stop()
 			panic(r)
 		}
 	}
+
+	tb.Cleanup(cleanup)
 
 	return ctx, cleanup
 }
